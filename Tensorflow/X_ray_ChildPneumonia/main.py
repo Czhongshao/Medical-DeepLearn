@@ -1,12 +1,15 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import pickle
 
 import tensorflow as tf 
+from tensorflow.keras.models import load_model
 import warnings
 warnings.filterwarnings("ignore")
 
 from data_loader import load_data
 from train import train_model
+from eval import val_loss_ac, loss_ac_plot, plot_images_with_predictions
 
 # 调用 GPU
 def use_gpu(USE_GPU):
@@ -39,15 +42,43 @@ def main():
     # 调用GPU
     use_gpu(True)
     # 载入数据
-    train_ds, val_ds, test_ds,  = load_data(train_directory, test_directory, val_directory, IMAGE_SIZE, batch_size)
+    train_ds, val_ds, test_ds, class_labels = load_data(train_directory, test_directory, val_directory, IMAGE_SIZE, batch_size)
 
-    model, history = train_model(train_ds, val_ds, epochs=20, patience=5)
+    need_train_model = str(input("DID YOU NEED TO TRAIN MODEL?(yes/no)"))
+    if need_train_model in ['yes', 'y']:
+        # 输出模型与训练记录
+        model, history = train_model(train_ds, val_ds, epochs=20, patience=5)
+    elif need_train_model in ['no', 'n']:
+        # 加载模型
+        try:
+            model = load_model('./models/final/py_CNN_ChildPneumonia_based_on_Xception.keras')
+            with open('./models/final/py_trainHistoryDict.txt','rb') as f:
+                history=pickle.load(f)
+        except: 
+            print("YOU DONT HAVE ANY MODELS AND HISTORYS TO USE!!")
 
-    model.save('./models/final/py_CNN_ChildPneumonia_based_on_Xception.keras')
 
-    # model, history = evaluate_model()
-    # model.save('./models/final/py_CNN_ChildPneumonia_based_on_Xception.keras')
-    # predict_model()
+    # 验证集损失与准确率
+    val_loss_ac(model, val_ds)
+    
+    if hasattr(history, 'history'):
+        hist_dict = history.history
+    else:
+        hist_dict = history
+    loss_ac_plot(hist_dict)
+
+    plot_images_with_predictions(model, class_labels, num_images=20)
+
+
+    # 保存训练模型
+    if need_train_model in ['yes', 'y']:
+        save_model = str(input("DID YOU SAVE THIS MODEL?(yes/no)"))
+        if save_model in ['yes', 'y']:
+            model.save('./models/final/py_CNN_ChildPneumonia_based_on_Xception.keras')
+            with open('./models/final/py_trainHistoryDict.txt', 'wb') as f:
+                pickle.dump(history.history, f)
+        elif save_model == 'no' or 'n':
+            ...
 
 
 if __name__ == "__main__":
