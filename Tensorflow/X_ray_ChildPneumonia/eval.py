@@ -3,63 +3,88 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 使用微软雅黑
 plt.rcParams['axes.unicode_minus'] = False  # 支持负号
-import matplotlib.image as mpimg
 import seaborn as sns
 
 
 def val_loss_ac(model, val):
     print()
-    print('-' * 50 + 'VALIDATION LOSS AND ACCURACY' +'-' * 50)
+    print('-' * 50 + 'VALIDATION METRICS' +'-' * 50)
 
-    print('-' * 30 + 'PRINT LOSS AND AC' +'-' * 30)
+    print('-' * 30 + 'PRINT VALIDATION METRICS' +'-' * 30)
+
     # 在验证集上评估模型
-    val_loss, val_accuracy = model.evaluate(val)
-
-    # 输出验证集损失与准确率
-    print("VAL LOSS: ", val_loss)
-    print("VAL AC: ", val_accuracy)
+    results = model.evaluate(val, verbose=0)
+    metrics_names = model.metrics_names
+    print("Validation Metrics:")
+    for name, value in zip(metrics_names, results):
+        print(f"{name.upper()}: {value:.4f}")
 
 
 def loss_ac_plot(history):
     print('-' * 30 + 'PRINT LOSS AND AC PLOT' + '-' * 30)
 
-    # 自动兼容 History 对象或字典
+    # 兼容 History
     if hasattr(history, "history"):
         history = history.history
 
-    # 避免 KeyError
-    acc = history.get('accuracy', [])
-    val_acc = history.get('val_accuracy', [])
     loss = history.get('loss', [])
     val_loss = history.get('val_loss', [])
+    acc = history.get('accuracy', [])
+    val_acc = history.get('val_accuracy', [])
+    prec = history.get('precision', [])
+    val_prec = history.get('val_precision', [])
+    rec = history.get('recall', [])
+    val_rec = history.get('val_recall', [])
+    auc = history.get('auc', [])
+    val_auc = history.get('val_auc', [])
 
+    epochs = range(1, len(loss) + 1)
     # 获取验证集最高准确率的 epoch
     best_epoch = val_acc.index(max(val_acc)) + 1
 
     # 绘制图像
     plt.style.use('seaborn-v0_8-whitegrid')
-    fig, axs = plt.subplots(1, 2, figsize=(16, 5))
+    fig, axs = plt.subplots(2, 2, figsize=(16, 12))
 
-    # 训练与验证准确率
-    axs[0].plot(acc, label='Training Accuracy', color='blue')
-    axs[0].plot(val_acc, label='Validation Accuracy', color='red')
-    axs[0].scatter(best_epoch - 1, val_acc[best_epoch - 1], color='green', label=f'Best Epoch: {best_epoch}')
-    axs[0].set_xlabel('Epoch')
-    axs[0].set_ylabel('Accuracy')
-    axs[0].set_title('TRAIN and VAL Accuracy')
-    axs[0].legend()
+    # 损失 Loss
+    axs[0, 0].plot(epochs, loss, label='Training Loss', color='blue')
+    axs[0, 0].plot(epochs, val_loss, label='Validation Loss', color='red')
+    axs[0, 0].scatter(best_epoch, val_loss[best_epoch-1], color='green', label=f'Best Epoch: {best_epoch}')
+    axs[0, 0].set_xlabel('Epoch')
+    axs[0, 0].set_ylabel('Loss')
+    axs[0, 0].set_title('Training and Validation Loss')
+    axs[0, 0].legend()
 
-    # 训练与验证损失
-    axs[1].plot(loss, label='Training Loss', color='blue')
-    axs[1].plot(val_loss, label='Validation Loss', color='red')
-    axs[1].scatter(best_epoch - 1, val_loss[best_epoch - 1], color='green', label=f'Best Epoch: {best_epoch}')
-    axs[1].set_xlabel('Epoch')
-    axs[1].set_ylabel('Loss')
-    axs[1].set_title('TRAIN and VAL Loss')
-    axs[1].legend()
+    # 准确率 Accuracy 
+    axs[0, 1].plot(epochs, acc, label='Training Accuracy', color='blue')
+    axs[0, 1].plot(epochs, val_acc, label='Validation Accuracy', color='red')
+    axs[0, 1].scatter(best_epoch, val_acc[best_epoch-1], color='green', label=f'Best Epoch: {best_epoch}')
+    axs[0, 1].set_xlabel('Epoch')
+    axs[0, 1].set_ylabel('Accuracy')
+    axs[0, 1].set_title('Training and Validation Accuracy')
+    axs[0, 1].legend()
+
+    # 精确率与回归率 Precision and Recall
+    axs[1, 0].plot(epochs, prec, label='Training Precision', color='purple')
+    axs[1, 0].plot(epochs, val_prec, label='Validation Precision', color='orange')
+    axs[1, 0].plot(epochs, rec, label='Training Recall', color='green')
+    axs[1, 0].plot(epochs, val_rec, label='Validation Recall', color='brown')
+    axs[1, 0].set_xlabel('Epoch')
+    axs[1, 0].set_ylabel('Score')
+    axs[1, 0].set_title('Precision and Recall')
+    axs[1, 0].legend()
+
+    # AUC
+    axs[1, 1].plot(epochs, auc, label='Training AUC', color='darkblue')
+    axs[1, 1].plot(epochs, val_auc, label='Validation AUC', color='darkred')
+    axs[1, 1].set_xlabel('Epoch')
+    axs[1, 1].set_ylabel('AUC')
+    axs[1, 1].set_title('Training and Validation AUC')
+    axs[1, 1].legend()
 
     plt.tight_layout()
-    plt.savefig("./output/best_epoch.png")
+    plt.savefig("./output/train_metrics.png")
+    plt.close()
     # plt.show()
 
 # 绘制图像及其真实和预测标签
