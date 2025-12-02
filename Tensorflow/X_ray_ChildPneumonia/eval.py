@@ -21,7 +21,7 @@ def val_loss_ac(model, val):
 
 
 def loss_ac_plot(history):
-    print('-' * 30 + 'PRINT LOSS AND AC PLOT' + '-' * 30)
+    print('-' * 30 + 'PRINT HISTORY PLOT' + '-' * 30)
 
     # 兼容 History
     if hasattr(history, "history"):
@@ -87,10 +87,66 @@ def loss_ac_plot(history):
     plt.close()
     # plt.show()
 
+    # 保存四个子图
+    output_dir = "./output/"
+
+    # 1. Loss
+    plt.figure(figsize=(8, 6))
+    plt.plot(epochs, loss, label='Training Loss', color='blue')
+    plt.plot(epochs, val_loss, label='Validation Loss', color='red')
+    plt.scatter(best_epoch, val_loss[best_epoch-1], color='green', label=f'Best Epoch: {best_epoch}')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_dir + "loss.png")
+    plt.close()
+
+    # 2. Accuracy
+    plt.figure(figsize=(8, 6))
+    plt.plot(epochs, acc, label='Training Accuracy', color='blue')
+    plt.plot(epochs, val_acc, label='Validation Accuracy', color='red')
+    plt.scatter(best_epoch, val_acc[best_epoch-1], color='green', label=f'Best Epoch: {best_epoch}')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Training and Validation Accuracy')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_dir + "accuracy.png")
+    plt.close()
+
+    # 3. Precision and Recall
+    plt.figure(figsize=(8, 6))
+    plt.plot(epochs, prec, label='Training Precision', color='purple')
+    plt.plot(epochs, val_prec, label='Validation Precision', color='orange')
+    plt.plot(epochs, rec, label='Training Recall', color='green')
+    plt.plot(epochs, val_rec, label='Validation Recall', color='brown')
+    plt.xlabel('Epoch')
+    plt.ylabel('Score')
+    plt.title('Precision and Recall')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_dir + "precision_recall.png")
+    plt.close()
+
+    # 4. AUC
+    plt.figure(figsize=(8, 6))
+    plt.plot(epochs, auc, label='Training AUC', color='darkblue')
+    plt.plot(epochs, val_auc, label='Validation AUC', color='darkred')
+    plt.xlabel('Epoch')
+    plt.ylabel('AUC')
+    plt.title('Training and Validation AUC')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_dir + "auc.png")
+    plt.close()
+
 # 绘制图像及其真实和预测标签
 def plot_images_with_predictions(model, class_labels, num_images=20, num_images_per_row=5):
     print('-' * 30 + 'PRINT RANDOM PREDICTED 20 IMGS' +'-' * 30)
     import tensorflow as tf
+    # 重新读取数据：逆归一化失败，目前没解决
     dataset = tf.keras.utils.image_dataset_from_directory(
         './data/test/',
         seed=123,
@@ -103,6 +159,8 @@ def plot_images_with_predictions(model, class_labels, num_images=20, num_images_
     dataset_shuffled = dataset.shuffle(buffer_size=len(dataset))
     
     plt.figure(figsize=(15, 10))
+    # plt.title('RANDOM 20 PREDICTED IMGS')
+    plt.suptitle('RANDOM 20 PREDICTED IMGS', fontsize=16, fontweight='bold')
     for i, (images, labels) in enumerate(dataset_shuffled.take(num_images)):
         # 将张量转换为 NumPy 数组
         images = images.numpy()
