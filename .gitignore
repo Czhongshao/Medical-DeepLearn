@@ -15,9 +15,13 @@ __pycache__/
 
 # 数据集
 Tensorflow/X_ray_ChildPneumonia/data/
+
+# 二次元发色分类
 Torch/ClassProject/3/faces/
 Torch/ClassProject/3/animefaces/*.jpg
 Torch/ClassProject/3/data/
 Torch/ClassProject/3/*.pth
 
+
+# 数字分类
 Torch/ClassProject/4/data/
