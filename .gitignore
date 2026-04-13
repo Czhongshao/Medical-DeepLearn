@@ -25,3 +25,8 @@ Torch/ClassProject/3/*.pth
 
 # 数字分类
 Torch/ClassProject/4/data/
+
+
+# CNN 的应用
+Torch/ClassProject/6/*.pth
+
