@@ -30,3 +30,7 @@ Torch/ClassProject/4/data/
 # CNN 的应用
 Torch/ClassProject/6/*.pth
 
+# 国际象棋数据集
+Torch/ClassProject/7/dataset/images/
+Torch/ClassProject/7/dataset/labels/
+Torch/ClassProject/7/*.pt
