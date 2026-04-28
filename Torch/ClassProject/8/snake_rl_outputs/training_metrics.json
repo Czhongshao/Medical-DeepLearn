@@ -1,0 +1,42 @@
+{
+  "config": {
+    "board_size": 6,
+    "episodes": 2500,
+    "alpha": 0.1,
+    "gamma": 0.9,
+    "epsilon_start": 1.0,
+    "epsilon_min": 0.02,
+    "epsilon_decay": 0.998,
+    "eval_episodes": 80,
+    "seed": 7
+  },
+  "state_features": [
+    "danger_straight",
+    "danger_left",
+    "danger_right",
+    "dir_up",
+    "dir_right",
+    "dir_down",
+    "dir_left",
+    "food_up",
+    "food_right",
+    "food_down",
+    "food_left"
+  ],
+  "actions": [
+    "straight",
+    "left",
+    "right"
+  ],
+  "epsilon_final": 0.02,
+  "first_100_mean_score": 0.39,
+  "last_100_mean_score": 10.46,
+  "best_training_score": 26,
+  "mean_training_reward": 49.26392000000003,
+  "evaluation": {
+    "episodes": 80.0,
+    "mean_score": 12.1125,
+    "max_score": 24.0,
+    "mean_reward": 106.44125000000011
+  }
+}
