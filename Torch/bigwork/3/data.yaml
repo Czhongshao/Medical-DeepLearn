@@ -1,0 +1,7 @@
+path: /home/shao/CNNProject/Medical-DeepLearn/Torch/bigwork/3/dataset
+train: train/images
+val: val/images
+test: test/images
+
+nc: 1
+names: ["tumor"]
